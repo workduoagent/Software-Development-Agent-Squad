@@ -1,0 +1,30 @@
+# 数据源基线片段（PostgreSQL 16 + HikariCP）
+# 用法：合并进 src/main/resources/application.yml；只允许 host / 库名 / 账号 / 口令走环境变量
+# 参数含义与取值依据见 references/connection.md 第二节
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    # socketTimeout 不设等于永不超时，挂死的查询会永久占住连接；单位为秒
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?currentSchema=${DB_SCHEMA:public}&ApplicationName=${spring.application.name}&connectTimeout=10&socketTimeout=120&tcpKeepAlive=true&reWriteBatchedInserts=true&prepareThreshold=5&sslmode=${DB_SSLMODE:disable}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: pg-main                    # 多数据源与指标区分的唯一手段
+      maximum-pool-size: ${DB_POOL_MAX:10}
+      minimum-idle: ${DB_POOL_MAX:10}       # 稳态服务不做弹性伸缩，避免突增时集中建连
+      connection-timeout: 10000
+      idle-timeout: 600000
+      max-lifetime: 1740000                 # 必须小于数据库或代理的空闲回收时间
+      keepalive-time: 30000
+      leak-detection-threshold: ${DB_LEAK_DETECT:60000}
+      initialization-fail-timeout: 1        # 配置错误直接拒绝启动，不带病服务
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration/postgresql
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    out-of-order: false
+    user: ${DB_MIGRATE_USERNAME}            # 迁移账号与运行账号分离
+    password: ${DB_MIGRATE_PASSWORD}

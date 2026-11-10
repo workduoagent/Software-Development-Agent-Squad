@@ -1,0 +1,32 @@
+# 数据源基线片段（MySQL 8 + HikariCP）[MySQL 未经公司实测，落地前在真实实例上验证一遍]
+# 用法：合并进 src/main/resources/application.yml；只允许 host / 库名 / 账号 / 口令走环境变量
+# 参数含义与取值依据见 references/connection.md 第三节
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # connectionTimeZone 钉死会话时区：DATETIME 不带时区，服务端与 JVM 不一致就整体偏移
+    # 注意 %2B 是 URL 编码的加号；用 +08:00 会被解析成空格
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT:3306}/${DB_NAME}?useUnicode=true&characterEncoding=UTF-8&connectionTimeZone=%2B08:00&forceConnectionTimeZoneToSession=true&rewriteBatchedStatements=true&cachePrepStmts=true&prepStmtCacheSize=250&prepStmtCacheSqlLimit=2048&useServerPrepStmts=true&tinyInt1isBit=false&connectTimeout=10000&socketTimeout=120000&autoReconnect=false&allowPublicKeyRetrieval=${DB_ALLOW_PK_FETCH:true}&sslMode=${DB_SSLMODE:DISABLED}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: mysql-main
+      maximum-pool-size: ${DB_POOL_MAX:10}
+      minimum-idle: ${DB_POOL_MAX:10}
+      connection-timeout: 10000
+      idle-timeout: 600000
+      # MySQL wait_timeout 默认 28800s；经 RDS Proxy 时以更小者为准，务必留 30-60s 余量
+      max-lifetime: 1740000
+      keepalive-time: 30000
+      leak-detection-threshold: ${DB_LEAK_DETECT:60000}
+      initialization-fail-timeout: 1
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration/mysql
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    out-of-order: false
+    user: ${DB_MIGRATE_USERNAME}
+    password: ${DB_MIGRATE_PASSWORD}

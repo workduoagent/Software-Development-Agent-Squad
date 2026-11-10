@@ -1,0 +1,103 @@
+# 单体拓扑 application.yml 基线。
+# 硬性纪律：本文件及所有 profile 文件里不得出现任何真实密钥、内网 IP、账号口令。
+# 一切机密走 ${ENV_VAR} 占位，由部署环境或配置中心注入；提交前用 grep 自查。
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+  # 优雅停机：停止接新请求后等在途请求处理完再退出，滚动发布不丢流量
+  shutdown: graceful
+
+spring:
+  application:
+    name: example-server
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  # JDK 21 虚拟线程：IO 密集接口吞吐提升明显；代价是 ThreadLocal 不能靠线程隔离复用，
+  # UserContext 必须在 finally 里 remove()
+  threads:
+    virtual:
+      enabled: true
+
+  mvc:
+    async:
+      # SSE / 长轮询的超时上限，按业务最慢一次模型调用设置
+      request-timeout: 3600000
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${MAX_FILE_SIZE:50MB}
+      max-request-size: ${MAX_REQUEST_SIZE:50MB}
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:20}
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DB:0}
+      timeout: 5000ms
+
+  # Flyway：结构变更只能走迁移脚本，禁止手工改生产库
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true      # 接入已有库时从当前版本建基线
+    validate-on-migrate: true
+    out-of-order: false
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    call-setters-on-nulls: true    # 否则 Map 结果里 null 字段被整体丢弃，前端拿不到键
+  # 按项目实际包名替换；本文件里凡涉及包名的键都必须写死（Spring 解析不了 ${base-package} 这类自定义占位符）
+  type-aliases-package: com.example.pojo
+  mapper-locations: classpath:mapper/*.xml
+
+jwt:
+  secret: ${JWT_SECRET}            # 至少 32 字节随机串，缺失时 JwtConfig 启动即失败
+  expiration: ${JWT_EXPIRE:7200}
+  issuer: ${JWT_ISSUER:example-server}
+
+# 等保二级基线参数（阈值待总架构师拍板，见 docs/02-protocols/security-baseline.md 第九节）
+security:
+  password:
+    min-length: ${PWD_MIN_LENGTH:8}
+    rotate-days: ${PWD_ROTATE_DAYS:90}
+  login:
+    fail-lock-threshold: ${LOGIN_LOCK_THRESHOLD:5}
+    lock-minutes: ${LOGIN_LOCK_MINUTES:15}
+  session:
+    idle-timeout-seconds: ${SESSION_IDLE_TIMEOUT:1800}
+
+audit:
+  sign-key: ${AUDIT_SIGN_KEY:}     # 留空则审计记录标记 unsigned
+  fail-fast: ${AUDIT_FAIL_FAST:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info       # 只暴露健康检查，metrics/env 有信息泄漏风险
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: INFO
+    # 按项目实际包名替换
+    com.example: ${LOG_LEVEL:INFO}

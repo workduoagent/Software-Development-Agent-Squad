@@ -1,0 +1,88 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Task",
+    "description": "任务分派与生命周期标准。派发六要素：task_id / goal / complexity / inputs / outputs / acceptance_criteria；assigned_to 与 status 等生命周期字段由 PM 统一维护（单写者原则）。状态机权威定义见 orchestration/state_machine.md。",
+    "type": "object",
+    "required": [
+        "task_id",
+        "assigned_to",
+        "goal",
+        "complexity",
+        "status",
+        "inputs",
+        "outputs",
+        "acceptance_criteria",
+        "rejection_history"
+    ],
+    "properties": {
+        "task_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9]*-[0-9]{3}$",
+            "description": "格式 {项目前缀}-{三位序号}，如 AUTH-001；项目前缀在全账本内唯一。"
+        },
+        "assigned_to": {
+            "enum": ["human", "architect", "backend-java", "backend-python", "backend-rust", "frontend-react", "qa"],
+            "description": "执行角色；human 为总架构师（用户），承担技术决策与破坏性变更拍板；architect 为架构师智能体（见 agents/architect/），承担架构设计与契约产出；开发角色按技术栈划分（见 agents/developers/）；PM 只分派与验收，不执行任务。"
+        },
+        "goal": {
+            "type": "string",
+            "minLength": 1,
+            "description": "一句话陈述可量化目标。"
+        },
+        "complexity": {
+            "enum": ["S", "M"],
+            "description": "T-Shirt 定级；L 级强制二次拆解，禁止直接派发。"
+        },
+        "status": {
+            "enum": ["TODO", "IN_PROGRESS", "IN_REVIEW", "ACCEPTED", "REJECTED", "BLOCKED"]
+        },
+        "inputs": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "前置任务产物与冻结契约的物理路径，相对项目 root_dir；上游任务须全部 ACCEPTED 且契约已登记冻结方可派发。"
+        },
+        "outputs": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1,
+            "description": "要求的物理产出物路径，相对项目 root_dir；验收时逐一核验存在且非空。"
+        },
+        "acceptance_criteria": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1,
+            "description": "绝对判据：测试覆盖要求、无报错日志、静态检查通过等。"
+        },
+        "rejection_history": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/rejection" },
+            "description": "打回历史，初始为空数组；每次 REJECTED 追加一条。同一问题同一原因超过 2 次向用户报警。"
+        },
+        "accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "验收通过时间，仅 status 为 ACCEPTED 时存在。"
+        },
+        "verification_log": {
+            "type": "string",
+            "description": "PM 验收对账记录（可选）。"
+        }
+    },
+    "$defs": {
+        "rejection": {
+            "type": "object",
+            "required": ["round", "rejected_at", "reason", "evidence"],
+            "properties": {
+                "round": { "type": "integer", "minimum": 1 },
+                "rejected_at": { "type": "string", "format": "date-time" },
+                "reason": { "type": "string", "minLength": 1 },
+                "evidence": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "minItems": 1,
+                    "description": "具体未达标证据：日志物理路径、失败摘录等。"
+                }
+            }
+        }
+    }
+}

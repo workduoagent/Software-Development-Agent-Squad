@@ -1,0 +1,18 @@
+{
+    "task_id": "AUTH-001",
+    "assigned_to": "backend-python",
+    "goal": "一句话陈述可量化目标",
+    "complexity": "M",
+    "inputs": [
+        "contracts/example-api-v1.yaml"
+    ],
+    "outputs": [
+        "src/controllers/example.py",
+        "tests/test_example.py"
+    ],
+    "acceptance_criteria": [
+        "符合冻结契约 example-api-v1.yaml 接口规范",
+        "单元测试通过率 100%，附带本地测试执行日志",
+        "静态检查通过，无报错日志"
+    ]
+}

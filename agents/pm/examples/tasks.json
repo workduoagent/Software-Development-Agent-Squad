@@ -1,0 +1,149 @@
+{
+    "version": "1.0.0",
+    "updated_at": "2026-11-09T23:40:00Z",
+    "projects": [
+        {
+            "project_id": "proj-auth-service",
+            "project_name": "用户认证微服务",
+            "root_dir": "./workspace/services/auth-service",
+            "status": "IN_PROGRESS",
+            "contracts": [
+                {
+                    "path": "contracts/auth-api-v1.yaml",
+                    "version": "1.0.0",
+                    "sha256": "a5fdf30a9dcb8fe69e096ddccf4a44cd0a7ea83cadc3f8a4678382283728d24b",
+                    "frozen_at": "2026-11-09T20:15:00Z"
+                }
+            ],
+            "tasks": [
+                {
+                    "task_id": "AUTH-001",
+                    "assigned_to": "architect",
+                    "goal": "设计用户注册与登录的 OpenAPI 3.1 接口契约与数据库建表脚本",
+                    "complexity": "M",
+                    "status": "ACCEPTED",
+                    "inputs": [
+                        "docs/requirements/auth-spec.md"
+                    ],
+                    "outputs": [
+                        "contracts/auth-api-v1.yaml",
+                        "migrations/001_init_user_table.sql"
+                    ],
+                    "acceptance_criteria": [
+                        "OpenAPI 3.1 格式合法且无语法错误",
+                        "覆盖 POST /api/v1/login 和 POST /api/v1/register 路由",
+                        "包含完整的请求响应样例与 400/401/409 错误码定义",
+                        "附 contract_validator 机器校验报告（Lint PASSED）与契约 sha256 指纹"
+                    ],
+                    "rejection_history": [],
+                    "accepted_at": "2026-11-09T20:15:00Z",
+                    "verification_log": "2026-11-09T20:15:00Z: 物理文件检查全部存在，contract_validator Lint 报告 PASSED 且 sha256 与交付凭证一致，PM 已登记 contracts 冻结。"
+                },
+                {
+                    "task_id": "AUTH-002",
+                    "assigned_to": "backend-python",
+                    "goal": "基于冻结契约实现注册接口逻辑与密码加盐哈希，并补充单测",
+                    "complexity": "M",
+                    "status": "IN_REVIEW",
+                    "inputs": [
+                        "contracts/auth-api-v1.yaml",
+                        "migrations/001_init_user_table.sql"
+                    ],
+                    "outputs": [
+                        "src/controllers/auth.py",
+                        "src/services/user.py",
+                        "tests/test_auth.py"
+                    ],
+                    "acceptance_criteria": [
+                        "符合 auth-api-v1.yaml 接口规范",
+                        "使用 bcrypt/Argon2 处理密码哈希",
+                        "单元测试通过率 100%，附带本地测试执行日志"
+                    ],
+                    "rejection_history": []
+                },
+                {
+                    "task_id": "AUTH-003",
+                    "assigned_to": "frontend-react",
+                    "goal": "基于契约构建注册页面表单及客户端校验（Mock 联调阶段）",
+                    "complexity": "S",
+                    "status": "TODO",
+                    "inputs": [
+                        "contracts/auth-api-v1.yaml"
+                    ],
+                    "outputs": [
+                        "src/pages/Register.tsx",
+                        "src/mocks/handlers.ts"
+                    ],
+                    "acceptance_criteria": [
+                        "基于 Mock 跑通页面提交逻辑",
+                        "包含邮箱、密码强度的前端即时校验"
+                    ],
+                    "rejection_history": []
+                },
+                {
+                    "task_id": "AUTH-004",
+                    "assigned_to": "backend-python",
+                    "goal": "基于冻结契约实现登录接口与 JWT 签发逻辑，并补充单测",
+                    "complexity": "M",
+                    "status": "REJECTED",
+                    "inputs": [
+                        "contracts/auth-api-v1.yaml",
+                        "migrations/001_init_user_table.sql"
+                    ],
+                    "outputs": [
+                        "src/controllers/login.py",
+                        "src/services/token.py",
+                        "tests/test_login.py"
+                    ],
+                    "acceptance_criteria": [
+                        "符合 auth-api-v1.yaml 接口规范",
+                        "JWT 过期与鉴权失败行为符合契约 401 错误码定义",
+                        "单元测试通过率 100%，附带本地测试执行日志"
+                    ],
+                    "rejection_history": [
+                        {
+                            "round": 1,
+                            "rejected_at": "2026-11-09T21:30:00Z",
+                            "reason": "单元测试通过率不足 100%",
+                            "evidence": [
+                                "qa/logs/auth-004-pytest-run.log: 2 failed, 17 passed（test_login_invalid_password 期望 401 实际返回 500）"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "task_id": "AUTH-005",
+                    "assigned_to": "qa",
+                    "goal": "对注册与登录接口执行集成测试与契约一致性验证，产出物理测试报告",
+                    "complexity": "M",
+                    "status": "TODO",
+                    "inputs": [
+                        "contracts/auth-api-v1.yaml",
+                        "src/controllers/auth.py",
+                        "src/controllers/login.py",
+                        "tests/test_auth.py",
+                        "tests/test_login.py"
+                    ],
+                    "outputs": [
+                        "qa/reports/auth-integration-report.md",
+                        "qa/logs/auth-integration-run.log"
+                    ],
+                    "acceptance_criteria": [
+                        "覆盖注册/登录正常路径与 400/401/409 错误路径",
+                        "报告包含用例清单、通过率与失败证据",
+                        "测试执行日志真实可复现"
+                    ],
+                    "rejection_history": []
+                }
+            ]
+        },
+        {
+            "project_id": "proj-admin-dashboard",
+            "project_name": "后台管理前端系统",
+            "root_dir": "./workspace/frontend/admin-dashboard",
+            "status": "TODO",
+            "contracts": [],
+            "tasks": []
+        }
+    ]
+}
