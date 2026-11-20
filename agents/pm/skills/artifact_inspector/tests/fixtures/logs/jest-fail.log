@@ -1,0 +1,7 @@
+PASS src/Register.test.tsx (5.2 s)
+FAIL src/Login.test.tsx (6.1 s)
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       1 failed, 4 passed, 5 total
+Snapshots:   0 total
+exit code: 1

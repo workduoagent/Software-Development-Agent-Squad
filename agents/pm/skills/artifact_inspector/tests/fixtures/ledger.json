@@ -1,0 +1,51 @@
+{
+    "version": "1.0.0",
+    "updated_at": "2026-11-10T01:30:00Z",
+    "projects": [
+        {
+            "project_id": "proj-demo",
+            "project_name": "验物夹具项目",
+            "root_dir": "workspace/demo",
+            "contracts": [],
+            "tasks": [
+                {
+                    "task_id": "DEMO-001",
+                    "assigned_to": "backend-java",
+                    "goal": "混合产出物样例：正常、空、占位、缺失、目录、逃逸",
+                    "complexity": "M",
+                    "status": "IN_REVIEW",
+                    "inputs": [],
+                    "outputs": [
+                        "src/ok.ts",
+                        "docs/empty.md",
+                        "docs/placeholder.md",
+                        "missing/not-here.ts",
+                        "outdir/",
+                        "outdir_empty/",
+                        "../evil.ts"
+                    ],
+                    "acceptance_criteria": [
+                        "全部 outputs 物理存在且非空"
+                    ],
+                    "rejection_history": []
+                },
+                {
+                    "task_id": "DEMO-002",
+                    "assigned_to": "frontend-react",
+                    "goal": "全部合格的产出物样例",
+                    "complexity": "S",
+                    "status": "IN_REVIEW",
+                    "inputs": [],
+                    "outputs": [
+                        "src/ok.ts",
+                        "src/main.py"
+                    ],
+                    "acceptance_criteria": [
+                        "全部 outputs 物理存在且非空"
+                    ],
+                    "rejection_history": []
+                }
+            ]
+        }
+    ]
+}

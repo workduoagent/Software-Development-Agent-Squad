@@ -1,0 +1,24 @@
+{
+  "name": "software-development-agent-squad",
+  "displayName": "软件开发智能体小分队",
+  "version": "0.3.0",
+  "description": "Contract-first multi-agent delivery toolkit: ledger gating, artifact acceptance, OpenAPI contract validation, scaffold and database-ops standards.",
+  "descriptionZh": "契约优先的多智能体交付工具集：任务账本门禁、物理验物、OpenAPI 契约校验、前后端脚手架与数据库作业规范。",
+  "author": {
+    "name": "吕习伟"
+  },
+  "homepage": "https://github.com/workduoagent/Software-Development-Agent-Squad",
+  "repository": "https://github.com/workduoagent/Software-Development-Agent-Squad",
+  "keywords": [
+    "qoder-plugin",
+    "skill",
+    "multi-agent",
+    "contract-first",
+    "task-tracker"
+  ],
+  "category": "developer-tools",
+  "tags": [
+    "skill"
+  ],
+  "skills": "./skills/"
+}

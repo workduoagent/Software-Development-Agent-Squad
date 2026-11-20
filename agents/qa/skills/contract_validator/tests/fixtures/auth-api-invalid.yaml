@@ -1,0 +1,69 @@
+openapi: 3.0.3
+info:
+  title: 违规契约夹具
+paths:
+  /api/v1/orders:
+    get:
+      summary: 缺 operationId、缺错误响应、2xx 非 Result 包装、缺样例
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  list:
+                    type: array
+    post:
+      operationId: createOrder
+      requestBody:
+        content:
+          application/json: {}
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+              examples:
+                ok:
+                  value:
+                    code: 0
+                    msg: ok
+                    data:
+                      orderId: 123
+        '400':
+          description: 参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+              examples:
+                bad:
+                  value:
+                    code: 99999
+                    msg: 未登记错误码
+                    data: null
+components:
+  schemas:
+    Result:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    Order:
+      type: object
+      properties:
+        orderId:
+          type: integer
+        buyerId:
+          type: integer
+x-error-codes:
+- code: 99998
+  http_status: 400
+  message: 未使用错误码
+  trigger: 夹具：登记但无样例覆盖

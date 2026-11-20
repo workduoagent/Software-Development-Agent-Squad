@@ -1,0 +1,6 @@
+[ERROR] Running com.example.auth.LoginControllerTest
+[ERROR] Tests run: 12, Failures: 1, Errors: 2, Skipped: 0, Time elapsed: 3.11 s
+[INFO] Results:
+[ERROR] Tests run: 12, Failures: 1, Errors: 2, Skipped: 0
+[INFO] BUILD FAILURE
+exit code: 1

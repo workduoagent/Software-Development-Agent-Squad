@@ -1,0 +1,287 @@
+# PM 操作手册：需求 → 设计 → 契约 → 实现 → 验证
+#
+# 这是给 PM 看的流程清单，不是可执行程序：本仓库无执行器，PM 按 stages 顺序手工执行。
+# 设计依据（R3 门禁口径、R4 账本归属、变更协议、已知缺口）见 软件团队知识库/任务状态机.md。
+# 状态与流转边的权威定义见软件团队知识库 任务状态机.md；其余规范类要求同样查阅软件团队知识库对应文档。
+# 脚本路径以 skill 名开头（如 task_tracker/validate.py），agent 挂载技能后按技能根寻址。
+# 命令中的 {xxx} 是需要代入的项目参数：{ledger} 账本、{root_dir} 项目根、{task_id} 任务号。
+
+name: software-development-agent-squad
+
+# 执行者代入的变量
+defaults:
+  squad_root: <蓝图仓库根的绝对路径>     # 账本所在目录
+  ledger: "{squad_root}/tasks.json"     # 中央账本，PM 单写，禁止写成裸 tasks.json
+  root_dir: <项目根路径>                # 相对账本所在目录解析，可指向仓库外工程
+  evidence_dir: "{root_dir}/reviews"    # PM 验物凭证目录
+
+# 每个阶段的产出归属。成员角色只产出，不参与状态流转（状态由 PM 独占）。
+actors:
+  chief_architect:
+    who: 总架构师（人类，用户担任）
+    authority: [技术选型, 基线参数拍板, 破坏性变更与权限变更决策, 门禁豁免审批]
+  pm:
+    skills: [task_tracker, artifact_inspector]
+    writes: [tasks.json, "{root_dir}/docs/prd-v{N}.md", "{root_dir}/reviews/"]
+  architect:
+    skills: [contract_validator, database-ops]
+    produces: ["{root_dir}/docs/tech-spec.md", "{root_dir}/contracts/*.yaml", "迁移脚本骨架"]
+  backend_java:
+    skills: [springboot-scaffold, database-ops]
+    produces: ["{root_dir} 内任务卡 outputs 声明的代码、迁移脚本、测试与日志"]
+  frontend_react:
+    skills: [react-scaffold]
+    produces: ["{root_dir} 内任务卡 outputs 声明的组件、类型镜像、mock 与测试"]
+  desktop_tauri:
+    skills: [tauri2-scaffold, react-scaffold]
+    produces: ["{root_dir} 内 src/ 前端与 src-tauri/ 命令、权限、类型契约与测试"]
+  qa:
+    skills: [artifact_inspector, contract_validator]
+    produces: ["{root_dir}/qa/（用例、fixtures、reports、logs）"]
+
+# 门禁命令表：gate id 供 stages 引用，命令不重复写
+# machine: true 有脚本机检；false 为人工对账，不得当作已有脚本
+gates:
+  G-LEDGER:
+    machine: true
+    when: 建账或改账后、每次派发前
+    command: 'python task_tracker/validate.py "{ledger}" --schema "软件团队知识库/任务字段标准.json" --report "{root_dir}/reviews/ledger-validate.json"'
+    pass: 退出码 0，0 errors；WARN 逐条记入派发说明
+  G-DISPATCH:
+    machine: true
+    when: 任何 TODO → IN_PROGRESS 之前（强制）
+    command: 'python task_tracker/check_dispatch.py --ledger "{ledger}" "{task_id}" --report "{root_dir}/reviews/{task_id}-dispatch.json"'
+    pass: 退出码 0；上游全 ACCEPTED、契约已冻结且 sha256 未漂移
+  G-LINT:
+    machine: true
+    when: architect 交付契约前
+    command: 'python contract_validator/lint.py "{contract}" --report "{root_dir}/contracts/reports/{name}-lint.json"'
+    pass: 退出码 0；WARN 在交付报告逐条说明
+  G-DIFF:
+    machine: true
+    when: 契约变更任务
+    command: 'python contract_validator/diff.py "{old_contract}" "{new_contract}" --report "{root_dir}/contracts/reports/{name}-diff.json"'
+    pass: 退出码 0 为 ADDITIVE；退出码 2 为破坏性变更，须总架构师决策 + 新大版本文件
+  G-FREEZE:
+    machine: true
+    when: Lint 通过后
+    command: 'python contract_validator/freeze.py "{contract}"'
+    pass: 退出码 0 且打印 PM 登记块
+  G-SEC-DECL:
+    machine: false
+    owner: [architect 自检, PM 登记前对账]
+    pass: 逐 operation 有 security 与 x-permissions、写操作有 x-audit、敏感字段有 x-sensitive/writeOnly；结论以清单写进报告
+  G-REGISTER:
+    machine: true
+    when: PM 核验 G-LINT / G-FREEZE / G-SEC-DECL 后
+    command: 'python task_tracker/contract_register.py --ledger "{ledger}" --project "{project_id}" --lock "{contract}.lock.json" --write'
+    pass: 退出码 0；sha256 三方一致、version 递增，落 contracts 表即冻结生效
+  G-OUTPUTS:
+    machine: true
+    command: 'python artifact_inspector/check_outputs.py --ledger "{ledger}" --task "{task_id}" --report "{root_dir}/reviews/{task_id}-outputs.json"'
+    pass: 退出码 0，no A001-A004
+  G-TESTLOG:
+    machine: true
+    command: 'python artifact_inspector/check_testlog.py "{log_file}" --report "{root_dir}/reviews/{task_id}-testlog.json"'
+    pass: 退出码 0；汇总行属 pytest/vitest/jest/surefire，失败 0、通过数 > 0
+  G-EXCERPT:
+    machine: true
+    command: 'python artifact_inspector/check_excerpt.py "{log_file}" --from-report "{report_md}" --report "{root_dir}/reviews/{task_id}-excerpt.json"'
+    pass: 退出码 0，报告摘录能在日志原文找到
+  G-SIDE-EFFECT:
+    machine: true
+    snapshot: 'python artifact_inspector/scan_side_effects.py snapshot "{root_dir}" --out "{root_dir}/reviews/{task_id}-deps-baseline.json"'
+    compare: 'python artifact_inspector/scan_side_effects.py compare "{root_dir}" --baseline "{root_dir}/reviews/{task_id}-deps-baseline.json" --declared "{task_id}" --report "{root_dir}/reviews/{task_id}-deps.json"'
+    pass: 退出码 0；无未声明的依赖或配置改动
+  G-SEC-GATE:
+    machine: true
+    when: 开发提测前自跑留日志，PM 核验摘录
+    command_backend: 'bash springboot-scaffold/scripts/check_secrets.sh "{root_dir}/src" && bash springboot-scaffold/scripts/check_security.sh "{root_dir}/src"'
+    command_frontend: 'bash react-scaffold/scripts/check_security.sh "{root_dir}/src"'
+    pass: 退出码 0 且报告带 [INFO] 取证段；无理由豁免即打回，风险可否接受由总架构师判定
+  G-DBOPS:
+    machine: true
+    when: outputs 含 .sql 或改过数据源配置
+    command: 'bash database-ops/scripts/check_db_ops.sh "{root_dir}/src/main/resources"'
+    pass: 退出码 0 + 填全的变更单；PM 按批次抽查重跑，命中「报告绿、重跑红」整批打回
+  G-QA-COVERAGE:
+    machine: false
+    owner: [QA 自报, PM 核验]
+    pass: 错误码逐 code 有用例且覆盖率 100%；每条 FAIL 有期望-实测差异
+  G-QA-SECURITY:
+    machine: false
+    owner: [QA, PM]
+    pass: 越权、鉴权绕过、脱敏、审计覆盖率四族逐条有执行记录与落盘原文摘录
+  G-PRD-DOD:
+    machine: false
+    owner: [PM 自检, 总架构师确认]
+    pass: 达到软件团队知识库 PRD 模版.md §十二 全部十条，§三.2 无待答
+  G-SPEC-INTAKE:
+    machine: false
+    owner: [architect]
+    pass: 权限口径、实体关系、拍板项结论、验收口径足以推导 Tech Spec 与契约
+  G-SPEC-PENDING:
+    machine: false
+    owner: [architect, 总架构师]
+    pass: Tech Spec §七 逐项有拍板依据或显式【待拍板】，无未经拍板的阈值数字
+
+# 人工决策闸门：流水线不得自行通过
+human_gates:
+  H-SCOPE: 需求歧义答复、范围与不做清单确认、PRD 版本确认（S0/S7）
+  H-TECH: 技术选型、拓扑、数据库与中间件（S0/S2）
+  H-PARAM: 基线 §九 参数取值：口令策略、锁定阈值、Token 有效期、审计留存（S2）
+  H-BREAKING: 破坏性变更与权限/审计声明的任何变化（S3）
+  H-EXEMPT: 门禁豁免理由、覆盖率门槛调整、留存期偏离（S4/S5）
+  H-ESCALATE: 同原因第 3 次打回报警（S5）
+  H-RELEASE: 不可逆数据变更批准、上线窗口与回滚点确认（S7）
+
+# 阶段。owner 是责任人，actions 里列具体动作；PM 负责全部状态流转。
+stages:
+  - id: S0-intake
+    name: 需求受理与定界
+    owner: pm
+    entry: 总架构师给出需求表述
+    actions:
+      - actor: pm
+        do: 按软件团队知识库 PRD 模版.md 产出 docs/prd-v{N}.md，§三 建两栏澄清台账、§五 列待拍板事项
+      - actor: 总架构师
+        do: 答复 H-SCOPE 与 H-TECH，参数取值留到 S2
+    exit_gate: [G-PRD-DOD]
+    blocked_when: §三.2 存在待答问题 → 相关任务标 BLOCKED，不进入 S1
+
+  - id: S1-breakdown
+    name: 任务拆解与建账
+    owner: pm
+    entry: PRD 已确认可派发
+    actions:
+      - actor: pm
+        do: 按任务字段标准六要素拆解，L 级必须二次拆解，写入 tasks.json
+      - actor: pm
+        gate: G-LEDGER
+      - actor: pm
+        command: 'python task_tracker/board.py --ledger "{ledger}" --project "{project_id}"'
+    exit_gate: [G-LEDGER]
+    rules:
+      - 首个可派任务只能是 architect 的契约与设计任务
+      - 项目前缀跨账本唯一，与 PRD §一 一致
+
+  - id: S2-architecture
+    name: 设计与契约产出
+    owner: architect
+    entry: 契约类任务通过 G-DISPATCH 派发
+    actions:
+      - actor: architect
+        do: 按软件团队知识库 Tech Spec 模版.md 产出 Tech Spec，接收前做 G-SPEC-INTAKE
+      - actor: architect
+        do: 产出 OpenAPI 契约草案与迁移脚本骨架（六大基石 + tenant 前导索引）
+      - actor: architect
+        gate: [G-LINT, G-DIFF, G-FREEZE]
+      - actor: architect
+        command: 'python contract_validator/mock_gen.py "{contract}" --out "{root_dir}/src/api/mock/{name}.mocks.json"'
+      - actor: architect
+        do: 交付报告含安全声明自检清单与待拍板参数清单，只出凭证，不宣布冻结生效
+    exit_gate: [G-LINT, G-FREEZE, G-SEC-DECL, G-SPEC-PENDING]
+    human_gate: [H-PARAM]
+    on_fail:
+      lint_error: 修契约重跑 G-LINT，禁止手改锁文件绕过
+      breaking: 停在 S2 等 H-BREAKING 结论，写入交付报告后才可重校验重冻结
+
+  - id: S3-freeze
+    name: 登记冻结（唯一生效点）
+    owner: pm
+    entry: S2 全部 exit_gate 通过
+    actions:
+      - actor: pm
+        do: 重算契约 sha256，与锁文件、交付报告三方比对
+      - actor: pm
+        gate: G-REGISTER
+      - actor: pm
+        do: G-SEC-DECL 人工对账，缺声明不登记
+    exit_gate: [G-REGISTER]
+    human_gate: [H-BREAKING]
+    hard_rule: 登记完成前，下游任务一律不得批准开工
+
+  - id: S4-implement
+    name: 并行实现
+    owner: [backend_java, frontend_react, desktop_tauri]
+    entry: 契约已登记冻结，inputs 上游均 ACCEPTED
+    actions:
+      - actor: pm
+        gate: G-DISPATCH
+      - actor: pm
+        gate: G-SIDE-EFFECT
+        when: 派发落笔前 snapshot
+      - actor: pm
+        command: 'python task_tracker/transition.py --ledger "{ledger}" "{task_id}" IN_PROGRESS --log "派发凭证"'
+      - actor: 成员
+        do: 按各自 skill 实现，自跑门禁留真实日志（G-SEC-GATE / G-DBOPS / 单测），完成后向 PM 交付
+    exit_gate: [G-DISPATCH]
+    blocked_when:
+      - 契约缺字段或缺 x-audit / x-permissions 声明 → 回报 PM 转 architect 补契约
+      - 需要新错误码、新鉴权维度、拓扑变更 → 停工上报
+
+  - id: S5-accept
+    name: 物理验收与记账
+    owner: pm
+    entry: 成员汇报完成
+    actions:
+      - actor: pm
+        gate: [G-LEDGER, G-OUTPUTS, G-TESTLOG, G-EXCERPT, G-SIDE-EFFECT]
+      - actor: pm
+        command: 'python task_tracker/transition.py --ledger "{ledger}" "{task_id}" ACCEPTED --log "凭证路径与摘要"'
+        when: 全部通过
+      - actor: pm
+        command: 'python task_tracker/transition.py --ledger "{ledger}" "{task_id}" REJECTED --reason "{判据}" --evidence "{物理路径或日志摘录}"'
+        when: 任一项未达标
+    exit_gate: [G-OUTPUTS, G-TESTLOG, G-EXCERPT, G-SIDE-EFFECT, G-SEC-GATE]
+    loops:
+      max_same_reason_rejections: 2
+      on_exceed: transition.py 退出码 3 → H-ESCALATE，成员不得继续返工
+      rework: REJECTED → IN_PROGRESS 由原作者认领，重提测时全量重验
+
+  - id: S6-verify
+    name: 集成与安全验证
+    owner: qa
+    entry: 被测范围内开发任务全部 ACCEPTED，契约 sha256 与登记值一致
+    actions:
+      - actor: pm
+        gate: G-DISPATCH
+      - actor: qa
+        do: 按软件团队知识库 QA 用例与证据细则.md 从契约推导用例，执行并落 qa/logs 与 qa/reports
+      - actor: qa
+        gate: [G-OUTPUTS, G-TESTLOG]
+        when: 提测前自检
+      - actor: pm
+        do: 按软件团队知识库 物理验收判据.md 核验报告与日志，采信为验收第一证据源
+    exit_gate: [G-TESTLOG, G-EXCERPT, G-QA-COVERAGE, G-QA-SECURITY]
+
+  - id: S7-release
+    name: 上线与数据变更
+    owner: [pm, 总架构师]
+    entry: 全部 P0 需求 ACCEPTED，QA 批次结论无 FAIL
+    actions:
+      - actor: pm
+        do: 核对数据变更单：执行窗口、锁影响、回滚方案、备份产物与恢复命令
+      - actor: 总架构师
+        do: H-RELEASE 批准不可逆操作与上线窗口
+      - actor: pm
+        do: 上线后留存 QA 复现说明与版本三件套（PRD / Tech Spec / 契约版本）
+    exit_gate: [G-DBOPS]
+
+  - id: S8-retro
+    name: 复盘与基线漂移检查
+    owner: pm
+    actions:
+      - actor: pm
+        do: 写 {root_dir}/reviews/ 迭代记录：本轮返工原因、门禁命中、契约变更次数
+      - actor: pm
+        do: 漂移自查：脚本已改而权威文档未改，或反之
+      - actor: 总架构师
+        do: 决定是否把新暴露的问题补进基线、判据或门禁脚本
+    exit_gate: []
+
+# 汇报节奏
+reporting:
+  cadence: 每轮对总架构师输出三段式（已验收交付物 / 阻塞与待确认 / 风险与决策请求）
+  rule: 事实与推断分开，决策请求给明确选项
+  board: 'python task_tracker/board.py --ledger "{ledger}" --json'

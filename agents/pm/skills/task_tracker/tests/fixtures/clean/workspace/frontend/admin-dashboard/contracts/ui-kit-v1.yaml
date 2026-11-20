@@ -1,0 +1,5 @@
+openapi: 3.1.0
+info:
+  title: UI Kit API (fixture, 未登记冻结)
+  version: 0.1.0
+paths: {}

@@ -1,0 +1,10 @@
+{
+  "contract": "workspace/services/auth-service/contracts/auth-api-v1.yaml",
+  "version": "1.0.0",
+  "sha256": "64ccdeee697b53e1b110910f87c02e1a0daf591131b15af295ee4ceabfba27af",
+  "frozen_at": "2026-11-09T20:15:00Z",
+  "lint": {
+    "errors": 3,
+    "warnings": 0
+  }
+}

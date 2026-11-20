@@ -1,0 +1,2 @@
+def demo_authintegrationrunlog():
+    return "fixture artifact"

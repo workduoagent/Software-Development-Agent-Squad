@@ -1,0 +1,15 @@
+# 反例夹具：连接池与 URL 参数踩满 D013、D014，期望退出码 1
+spring:
+  datasource:
+    mysql:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://db.internal:3306/app_db?useSSL=false&autoReconnect=true
+      username: ${DB_MYSQL_USER}
+      password: ${DB_MYSQL_PASSWORD}
+      hikari:
+        maximum-pool-size: 500
+    postgresql:
+      driver-class-name: org.postgresql.Driver
+      jdbc-url: jdbc:postgresql://db.internal:5432/app_db?currentSchema=public
+      username: ${DB_PG_USER}
+      password: ${DB_PG_PASSWORD}

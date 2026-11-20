@@ -1,0 +1,8 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.4.0, pluggy-1.5.0
+collected 19 items
+
+tests\test_login.py ..FF................                              [100%]
+
+======================== 2 failed, 17 passed in 8.11s =========================
+exit code: 1

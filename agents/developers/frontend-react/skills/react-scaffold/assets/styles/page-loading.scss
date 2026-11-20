@@ -1,0 +1,7 @@
+/* 页面级 loading（由路由懒加载兜底组件使用） */
+.pageLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+}

@@ -1,0 +1,162 @@
+/* 颜色唯一真源：只有本文件可以写死 hex。
+   <html> 上的 .light / .dark 类由 ThemeProvider 维护，业务组件一律用 var(--color-*) 消费，禁止自行切类名。 */
+
+:root,
+:root.light {
+  /* 品牌与语义色：主色取靛蓝，顶部导航选中块、图标底色、antd 组件共用一支色，屏幕上只留一套「可点」的语言。
+     info 同样跟随主色，另留一支蓝只会和靛蓝分不清是提示还是操作。 */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #6366f1;
+  --color-primary-active: #4338ca;
+  --color-primary-bg: #eef2ff;
+  --color-success: #52c41a;
+  --color-warning: #faad14;
+  --color-error: #ff4d4f;
+  --color-info: #4f46e5;
+  /* 语义色的浅背景 / 边框变体：用于提示条、图标底色等弱强调场景 */
+  --color-success-bg: #f6ffed;
+  --color-success-border: #b7eb8f;
+  --color-warning-bg: #fffbe6;
+  --color-warning-border: #ffe58f;
+  --color-error-bg: #fff2f0;
+  --color-error-border: #ffccc7;
+  --color-info-bg: #eef2ff;
+  --color-info-border: #c7d2fe;
+
+  /* 分类色：只用于「类型标签」这类数据编码，不参与交互态。
+     页面 / 外链刻意避开主色：小胶囊一旦和按钮同色，扫视时就成了「能点」的错觉。
+     目录是例外，它标记的是卡头本身，直接借主色强调，所以不单列一支。
+     页面=青绿，外链=琥珀（跳出站内，用暖色），neutral=石灰（无归属时的兜底）。 */
+  --color-tag-neutral: #475569;
+  --color-tag-neutral-bg: #f1f5f9;
+  --color-tag-page: #0d9488;
+  --color-tag-page-bg: #f0fdfa;
+  --color-tag-link: #b45309;
+  --color-tag-link-bg: #fef3c7;
+
+  /* 代码胶囊：路径 / 权限点 / 组件名的定宽小底 */
+  --color-code-text: #64748b;
+  --color-code-bg: #f8fafc;
+  --color-code-border: #eef2f7;
+
+  /* 文字色 */
+  --color-text-primary: rgba(0, 0, 0, 0.88);
+  --color-text-secondary: rgba(0, 0, 0, 0.65);
+  --color-text-tertiary: rgba(0, 0, 0, 0.45);
+  --color-text-inverse: #ffffff;
+
+  /* 背景：页面底色刻意压深（#eef1f5），让白色浮岛卡片浮起来，避免大面积纯白造成视觉疲劳与层级不清 */
+  --color-bg-body: #eef1f5;
+  /* 卡片 / 浮岛底色，保持纯白以突出层次 */
+  --color-bg-container: #ffffff;
+  --color-bg-elevated: #ffffff;
+  /* 卡片内部的浅分区，比容器略灰一档 */
+  --color-bg-subtle: #f7f9fb;
+  --color-bg-hover: rgba(0, 0, 0, 0.04);
+  --color-bg-mask: rgba(0, 0, 0, 0.45);
+  /* 遮罩层上的图标：两档主题的遮罩都是黑，所以图标一律白。
+     别拿 --color-text-inverse 顶替，它在暗色下是深色字，压在黑遮罩上就消失了。 */
+  --color-mask-icon: #ffffff;
+
+  /* 边框与分割线：primary 用于浮岛、卡片描边，secondary 用于内部分隔，两者拉开明度差让边界清晰可辨 */
+  --color-border: #d0d7de;
+  --color-border-secondary: #e8ecef;
+  --color-split: rgba(5, 5, 5, 0.1);
+
+  /* 滚动条 */
+  --color-scrollbar: rgba(0, 0, 0, 0.18);
+
+  /* 阴影 */
+  --shadow-color: rgba(0, 0, 0, 0.08);
+
+  /* 顶部导航：柔和渐变顶栏 + 磨砂玻璃胶囊 + 主色选中块。
+     顶栏刻意带两团色光，胶囊的 backdrop-filter 才有东西可「磨」，否则半透明叠在纯白上等于没有玻璃感。
+     两团光收在靛到紫这一条冷色带上，与主色同族，不再各说各话。 */
+  --color-header-bg:
+    radial-gradient(900px 130px at 18% -35%, rgba(99, 102, 241, 0.2), transparent 70%),
+    radial-gradient(760px 130px at 84% -45%, rgba(124, 58, 237, 0.14), transparent 70%),
+    linear-gradient(180deg, #f2f3fd, #ffffff);
+  --color-header-border: rgba(79, 70, 229, 0.12);
+  --color-nav-glass: rgba(255, 255, 255, 0.52);
+  --color-nav-glass-border: rgba(255, 255, 255, 0.8);
+  --color-nav-glass-shadow: 0 8px 24px rgba(23, 51, 94, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --color-nav-item: rgba(0, 0, 0, 0.62);
+  /* 悬停 / 选中都归主色：可点的东西说同一种语言，
+     顶栏那两团冷色光只负责给玻璃层提供可「磨」的底，不作交互色用 */
+  --color-nav-item-hover: rgba(79, 70, 229, 0.1);
+  --color-nav-item-hover-text: #4338ca;
+  --color-nav-active-bg: linear-gradient(135deg, #6366f1, #4f46e5);
+  --color-nav-active-text: #ffffff;
+  --color-nav-active-shadow: 0 6px 16px rgba(79, 70, 229, 0.34);
+}
+
+:root.dark {
+  /* 暗色下主色提亮一档：靛蓝本身偏深，原色压到深底上会糊成一片，
+     按钮里的白字更读不出来 */
+  --color-primary: #6366f1;
+  --color-primary-hover: #818cf8;
+  --color-primary-active: #4f46e5;
+  --color-primary-bg: rgba(99, 102, 241, 0.18);
+  --color-success: #73d13d;
+  --color-warning: #ffc069;
+  --color-error: #ff7875;
+  --color-info: #818cf8;
+  /* 暗色下用透明度叠加，避免纯色块过于刺眼 */
+  --color-success-bg: rgba(115, 209, 61, 0.16);
+  --color-success-border: rgba(115, 209, 61, 0.36);
+  --color-warning-bg: rgba(255, 192, 105, 0.16);
+  --color-warning-border: rgba(255, 192, 105, 0.36);
+  --color-error-bg: rgba(255, 120, 117, 0.16);
+  --color-error-border: rgba(255, 120, 117, 0.36);
+  --color-info-bg: rgba(99, 102, 241, 0.16);
+  --color-info-border: rgba(99, 102, 241, 0.36);
+
+  /* 分类色 / 代码胶囊：暗色下全部转成透明度叠加，避免色块在深底上发闷 */
+  --color-tag-neutral: rgba(255, 255, 255, 0.65);
+  --color-tag-neutral-bg: rgba(255, 255, 255, 0.1);
+  --color-tag-page: #2dd4bf;
+  --color-tag-page-bg: rgba(45, 212, 191, 0.16);
+  --color-tag-link: #fbbf24;
+  --color-tag-link-bg: rgba(251, 191, 36, 0.16);
+
+  --color-code-text: rgba(255, 255, 255, 0.62);
+  --color-code-bg: rgba(255, 255, 255, 0.06);
+  --color-code-border: rgba(255, 255, 255, 0.1);
+
+  --color-text-primary: rgba(255, 255, 255, 0.88);
+  --color-text-secondary: rgba(255, 255, 255, 0.65);
+  --color-text-tertiary: rgba(255, 255, 255, 0.45);
+  --color-text-inverse: rgba(0, 0, 0, 0.88);
+
+  --color-bg-body: #141414;
+  --color-bg-container: #1f1f1f;
+  --color-bg-elevated: #262626;
+  /* 卡片内部的浅分区，暗色下比容器略亮一档 */
+  --color-bg-subtle: #262626;
+  --color-bg-hover: rgba(255, 255, 255, 0.08);
+  --color-bg-mask: rgba(0, 0, 0, 0.65);
+
+  --color-border: #434343;
+  --color-border-secondary: #303030;
+  --color-split: rgba(253, 253, 253, 0.12);
+
+  --color-scrollbar: rgba(255, 255, 255, 0.2);
+
+  --shadow-color: rgba(0, 0, 0, 0.5);
+
+  /* 顶部导航：暗色下顶栏用靛紫渐变打底，玻璃层改为白色低透明度叠加 */
+  --color-header-bg:
+    radial-gradient(900px 150px at 18% -40%, rgba(99, 102, 241, 0.3), transparent 70%),
+    radial-gradient(760px 150px at 84% -50%, rgba(124, 58, 237, 0.22), transparent 70%),
+    linear-gradient(180deg, #1a1c2e, #141414);
+  --color-header-border: rgba(255, 255, 255, 0.08);
+  --color-nav-glass: rgba(255, 255, 255, 0.07);
+  --color-nav-glass-border: rgba(255, 255, 255, 0.14);
+  --color-nav-glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --color-nav-item: rgba(255, 255, 255, 0.72);
+  --color-nav-item-hover: rgba(129, 140, 248, 0.18);
+  --color-nav-item-hover-text: #a5b4fc;
+  --color-nav-active-bg: linear-gradient(135deg, #6366f1, #4338ca);
+  --color-nav-active-text: #ffffff;
+  --color-nav-active-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}

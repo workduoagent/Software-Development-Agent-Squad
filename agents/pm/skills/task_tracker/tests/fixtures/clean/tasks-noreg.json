@@ -1,0 +1,151 @@
+{
+    "version": "1.0.0",
+    "updated_at": "2026-11-10T01:00:00Z",
+    "projects": [
+        {
+            "project_id": "proj-auth-service",
+            "project_name": "用户认证微服务（夹具）",
+            "root_dir": "workspace/services/auth-service",
+            "status": "IN_PROGRESS",
+            "contracts": [],
+            "tasks": [
+                {
+                    "task_id": "AUTH-001",
+                    "assigned_to": "architect",
+                    "goal": "设计用户注册与登录的 OpenAPI 3.1 接口契约与数据库建表脚本",
+                    "complexity": "M",
+                    "status": "ACCEPTED",
+                    "inputs": [
+                        "docs/requirements/auth-spec.md"
+                    ],
+                    "outputs": [
+                        "contracts/auth-api-v1.yaml",
+                        "migrations/001_init_user_table.sql"
+                    ],
+                    "acceptance_criteria": [
+                        "附 contract_validator 机器校验报告与 sha256 指纹"
+                    ],
+                    "rejection_history": [],
+                    "accepted_at": "2026-11-09T20:15:00Z",
+                    "verification_log": "2026-11-09T20:15:00Z: Lint PASSED，指纹三方一致，已登记冻结。"
+                },
+                {
+                    "task_id": "AUTH-002",
+                    "assigned_to": "backend-python",
+                    "goal": "基于冻结契约实现注册接口逻辑与密码加盐哈希，并补充单测",
+                    "complexity": "M",
+                    "status": "IN_PROGRESS",
+                    "inputs": [
+                        "contracts/auth-api-v1.yaml",
+                        "migrations/001_init_user_table.sql"
+                    ],
+                    "outputs": [
+                        "src/controllers/auth.py",
+                        "src/services/user.py",
+                        "tests/test_auth.py"
+                    ],
+                    "acceptance_criteria": [
+                        "符合 auth-api-v1.yaml 接口规范",
+                        "单元测试通过率 100%，附执行日志"
+                    ],
+                    "rejection_history": []
+                },
+                {
+                    "task_id": "AUTH-003",
+                    "assigned_to": "frontend-react",
+                    "goal": "基于契约构建注册页面表单及客户端校验（Mock 联调阶段）",
+                    "complexity": "S",
+                    "status": "TODO",
+                    "inputs": [
+                        "contracts/auth-api-v1.yaml"
+                    ],
+                    "outputs": [
+                        "src/pages/Register.tsx",
+                        "src/mocks/handlers.ts"
+                    ],
+                    "acceptance_criteria": [
+                        "基于 Mock 跑通页面提交逻辑"
+                    ],
+                    "rejection_history": []
+                },
+                {
+                    "task_id": "AUTH-004",
+                    "assigned_to": "backend-python",
+                    "goal": "基于冻结契约实现登录接口与 JWT 签发逻辑，并补充单测",
+                    "complexity": "M",
+                    "status": "REJECTED",
+                    "inputs": [
+                        "contracts/auth-api-v1.yaml",
+                        "migrations/001_init_user_table.sql"
+                    ],
+                    "outputs": [
+                        "src/controllers/login.py",
+                        "src/services/token.py",
+                        "tests/test_login.py"
+                    ],
+                    "acceptance_criteria": [
+                        "JWT 过期与鉴权失败行为符合契约 401 错误码定义",
+                        "单元测试通过率 100%，附执行日志"
+                    ],
+                    "rejection_history": [
+                        {
+                            "round": 1,
+                            "rejected_at": "2026-11-09T21:30:00Z",
+                            "reason": "单元测试通过率不足 100%",
+                            "evidence": [
+                                "qa/logs/auth-004-pytest-run.log: 2 failed, 17 passed"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "task_id": "AUTH-005",
+                    "assigned_to": "qa",
+                    "goal": "对注册与登录接口执行集成测试与契约一致性验证，产出物理测试报告",
+                    "complexity": "M",
+                    "status": "TODO",
+                    "inputs": [
+                        "contracts/auth-api-v1.yaml",
+                        "src/controllers/login.py",
+                        "tests/test_login.py"
+                    ],
+                    "outputs": [
+                        "qa/reports/auth-integration-report.md",
+                        "qa/logs/auth-integration-run.log"
+                    ],
+                    "acceptance_criteria": [
+                        "覆盖注册/登录正常路径与错误路径",
+                        "测试执行日志真实可复现"
+                    ],
+                    "rejection_history": []
+                }
+            ]
+        },
+        {
+            "project_id": "proj-admin-dashboard",
+            "project_name": "后台管理前端系统（夹具）",
+            "root_dir": "workspace/frontend/admin-dashboard",
+            "status": "TODO",
+            "contracts": [],
+            "tasks": [
+                {
+                    "task_id": "ADM-001",
+                    "assigned_to": "frontend-react",
+                    "goal": "对接 UI Kit 契约实现组件库接入页",
+                    "complexity": "M",
+                    "status": "TODO",
+                    "inputs": [
+                        "contracts/ui-kit-v1.yaml"
+                    ],
+                    "outputs": [
+                        "src/pages/KitDemo.tsx"
+                    ],
+                    "acceptance_criteria": [
+                        "契约字段 100% 映射"
+                    ],
+                    "rejection_history": []
+                }
+            ]
+        }
+    ]
+}

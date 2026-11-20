@@ -1,0 +1,100 @@
+{
+    "version": "1.0.0",
+    "updated_at": "2026-11-10T01:10:00Z",
+    "projects": [
+        {
+            "project_id": "proj-dup",
+            "project_name": "违规样例 A",
+            "root_dir": "workspace/a",
+            "contracts": [
+                {
+                    "path": "contracts/api-v1.yaml",
+                    "version": "v1",
+                    "frozen_at": "2026-11-09T20:15:00Z"
+                }
+            ],
+            "tasks": [
+                {
+                    "task_id": "AUTH-001",
+                    "assigned_to": "architect",
+                    "goal": "指纹与版本字段违规样例",
+                    "complexity": "M",
+                    "status": "ACCEPTED"
+                },
+                {
+                    "task_id": "AUTH-001",
+                    "assigned_to": "backend-java",
+                    "goal": "task_id 重复样例",
+                    "complexity": "M",
+                    "status": "IN_PROGRESS",
+                    "inputs": [],
+                    "outputs": ["src/Main.java"],
+                    "acceptance_criteria": ["编译通过"],
+                    "rejection_history": [],
+                    "accepted_at": "2026-11-09T22:00:00Z"
+                },
+                {
+                    "task_id": "bad-id-1",
+                    "assigned_to": "frontend-react",
+                    "complexity": "L",
+                    "status": "TODO",
+                    "inputs": [],
+                    "outputs": [],
+                    "acceptance_criteria": [],
+                    "rejection_history": [
+                        {
+                            "round": 2,
+                            "rejected_at": "2026-11-09T21:00:00Z",
+                            "reason": "门禁未过",
+                            "evidence": ["logs/l2.log"]
+                        },
+                        {
+                            "round": 1,
+                            "rejected_at": "2026-11-09T20:00:00Z",
+                            "reason": "门禁未过",
+                            "evidence": ["logs/l1.log"]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "project_id": "proj-dup",
+            "project_name": "违规样例 B",
+            "root_dir": "workspace/b",
+            "contracts": [],
+            "tasks": [
+                {
+                    "task_id": "ADM-001",
+                    "assigned_to": "qa",
+                    "goal": "结构完整仅作根目录冲突陪衬",
+                    "complexity": "S",
+                    "status": "TODO",
+                    "inputs": [],
+                    "outputs": ["qa/reports/r.md"],
+                    "acceptance_criteria": ["报告非空"],
+                    "rejection_history": []
+                }
+            ]
+        },
+        {
+            "project_id": "proj-portal",
+            "project_name": "违规样例 C：跨项目前缀冲突与根目录复用",
+            "root_dir": "workspace/a",
+            "contracts": [],
+            "tasks": [
+                {
+                    "task_id": "AUTH-010",
+                    "assigned_to": "qa",
+                    "goal": "前缀 AUTH 已被违规样例 A 占用",
+                    "complexity": "S",
+                    "status": "TODO",
+                    "inputs": [],
+                    "outputs": ["qa/reports/r.md"],
+                    "acceptance_criteria": ["报告非空"],
+                    "rejection_history": []
+                }
+            ]
+        }
+    ]
+}

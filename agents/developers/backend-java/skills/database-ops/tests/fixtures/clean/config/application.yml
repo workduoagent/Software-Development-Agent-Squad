@@ -1,0 +1,40 @@
+# check_db_ops.sh 干净夹具：双引擎数据源，连接池参数齐备且全部走环境变量
+# 期望退出码 0；真实凭据一律由部署环境注入，仓库里只保留占位
+spring:
+  datasource:
+    postgresql:
+      driver-class-name: org.postgresql.Driver
+      jdbc-url: jdbc:postgresql://db.internal:5432/app_db?currentSchema=public&connectTimeout=10&socketTimeout=30&tcpKeepAlive=true&ApplicationName=app-svc
+      username: ${DB_PG_USER}
+      password: ${DB_PG_PASSWORD}
+      hikari:
+        pool-name: pg-app
+        maximum-pool-size: ${DB_POOL_MAX:10}
+        minimum-idle: 2
+        connection-timeout: 10000
+        idle-timeout: 600000
+        max-lifetime: 1740000
+        keepalive-time: 30000
+        leak-detection-threshold: 60000
+        initialization-fail-timeout: 1
+    mysql:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://db.internal:3306/app_db?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=true&connectTimeout=10000&socketTimeout=30000&rewriteBatchedStatements=true&cachePrepStmts=true
+      username: ${DB_MYSQL_USER}
+      password: ${DB_MYSQL_PASSWORD}
+      hikari:
+        pool-name: mysql-app
+        maximum-pool-size: ${DB_POOL_MAX:10}
+        minimum-idle: 2
+        connection-timeout: 10000
+        idle-timeout: 600000
+        max-lifetime: 1740000
+        keepalive-time: 30000
+        leak-detection-threshold: 60000
+        initialization-fail-timeout: 1
+  flyway:
+    enabled: true
+    locations: classpath:db/migration/{vendor}
+    baseline-on-migrate: true
+    user: ${DB_MIGRATE_USER}
+    password: ${DB_MIGRATE_PASSWORD}

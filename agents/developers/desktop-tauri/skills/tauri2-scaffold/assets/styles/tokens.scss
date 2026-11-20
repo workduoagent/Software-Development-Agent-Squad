@@ -1,0 +1,28 @@
+:root {
+  --color-bg: #ffffff;
+  --color-bg-subtle: #fafafa;
+  --color-border: #e4e4e7;
+  --color-text: #18181b;
+  --color-text-muted: #71717a;
+  --color-primary: #0284c7;
+  --color-danger: #ef4444;
+  --color-success: #16a34a;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+}
+
+// 明暗切换走 html.dark 类（与 react-scaffold 的三层 Sass 体系语义对齐），
+// 组件只引用 var(--color-*)，禁止在组件样式里内联色值。
+:root.dark {
+  --color-bg: #18181b;
+  --color-bg-subtle: #27272a;
+  --color-border: #3f3f46;
+  --color-text: #fafafa;
+  --color-text-muted: #a1a1aa;
+  /* 其余令牌同理覆盖 */
+}
