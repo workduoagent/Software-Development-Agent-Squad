@@ -4,6 +4,14 @@
 > **装配**：把本模板复制到本机仓库根并重命名为 `device-env.md`，按实况填写（该文件已加入 `.gitignore`，不进 git）。
 > **红线**：口令、Token、密钥一律不写入本文件——只记环境变量名与取值来源（系统环境变量 / 凭据管理器）。本档案记录的是**事实**不是规范；改动后知会相关实例即可。
 
+## 仓库与路径（PM 寻址依据；散活对话时直接告知实例或让它读本节）
+
+| 项 | 值 |
+| --- | --- |
+| squad_root（本机仓库根） | <填写绝对路径，如 E:\Codes\ABC\Software-Development-Agent-Squad> |
+| ledger（中央账本） | `{squad_root}\tasks.json` |
+| root_dir（项目根） | 随项目在触发时给定，可指向仓库外工程 |
+
 ## 工具链（java-dev / react-dev / tauri-dev / py-* 的门禁与构建依赖）
 
 | 工具 | 版本 | 路径 / 命令 | 备注 |

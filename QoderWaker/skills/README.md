@@ -26,7 +26,7 @@ python scripts/sync_skills.py        # 生成仓库根 skills/<skill>/，9 个�
 
 ## 上传与依赖
 
-- 「上传 Skill」接受目录还是 zip 需实测（pilot 第一项）。
+- **平台仅支持 ZIP 上传（2026-11-21 实测确认）**：`scripts/package_waker.py` 会为每个技能自动生成 `<skill>.zip`（在 `dist/qoderwaker-upload/01-skills/`），直接逐个上传即可；若平台报找不到 SKILL.md，用 `--flat-zip` 切换为扁平布局重打包。
 - 带 `requirements.txt` 的技能（task_tracker、artifact_inspector、contract_validator、python-backend-scaffold）在本机预装 Python 依赖；bash 门禁脚本（check_secrets.sh / check_security.sh / check_db_ops.sh）要求本机 bash 可用；Python 版机检（check_secrets.py）随 python-backend-scaffold 分发。
 - 脚本只留在技能包里、不复制进项目；运行时命令以 skill 名开头寻址（如 `task_tracker/validate.py`）。
 

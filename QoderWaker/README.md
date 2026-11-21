@@ -19,6 +19,7 @@
 
 ```
 QoderWaker/
+├── RUNBOOK.md              # 装配手册（唯一权威：阶段 0-5 / 标准迭代流程 / 实测记录表）
 ├── roles/                  7 个角色模板 × identity / persona / bible 三件套
 │   ├── pm/                 项目经理（对应 agents/pm/prompt.md + orchestration/workflow.yaml）
 │   ├── architect/          系统架构师（对应 agents/architect/prompt.md）
@@ -41,12 +42,11 @@ QoderWaker/
 - 纪律改动规则：先改对应形态的真源，再同步另一形态；后续可加一致性检查脚本。
 - 知识库文档真源仍是仓库 `软件团队知识库/`；`knowledge-base/` 只做检索适配，不做内容改写。
 
-## 装配顺序（pilot）
+## 装配与迭代（唯一入口）
 
-1. **architect 试点**（依赖最少的可产出角色）：建角色模板（上传 `roles/architect/` 三件套）→ 挂 contract_validator、database-ops → 建 architect-01 实例（运行环境：本机）→ 绑知识库。实测四件事：技能上传包格式、知识库检索命中、门禁脚本本机可跑、三件套长度是否超限。
-2. **PM 账本链**：建 pm 模板与 pm-01 单例 → 跑 S0→S1，验证 `{ledger}` 绝对路径解析与知识库模版引用。
-3. **最小 WakerFlow 闭环**：把 `wakerflow/main-flow-prompt.md` 粘进「新建 WakerFlow」，先只验 S0→S1→S2→S3（含 H-SCOPE / H-PARAM 两个人工闸门）；按 `acceptance-checklist.md` 对账。
-4. **全量**：补前端 / 后端（Java + Python）/ 桌面 / 脚本程序员与 qa-01 实例 → 完整 S0-S8 流程 → S5 打回循环单独测。
+**见 [RUNBOOK.md](RUNBOOK.md)**——装配顺序（阶段 0-5）、标准迭代流程、实测记录表都在那里，本文档不再重复。
+
+日常迭代固定三步：改真源 → `python scripts/package_waker.py` → 照 `dist/qoderwaker-upload/00-OPERATION.md` 的增量重传清单重传变更文件。
 
 ## 运行层依赖（本机一次性准备）
 

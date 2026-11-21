@@ -59,7 +59,8 @@ Software-Development-Agent-Squad/
 └── scripts/
     ├── sync_skills.py            # 扁平化生成 + 同名副本一致性校验
     ├── install_agents.py         # 安装角色 prompt 为用户级 Agent
-    └── package_plugin.py         # 装配插件包，技能从角色目录汇总
+    ├── package_plugin.py         # 装配插件包，技能从角色目录汇总
+    └── package_waker.py          # 打包 QoderWake 上传工作台目录 + 增量重传清单
 ```
 
 ## 制品链
