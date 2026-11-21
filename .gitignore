@@ -6,3 +6,4 @@ dist/
 .qoder/
 .idea/
 .workbuddy/
+/device-env.md

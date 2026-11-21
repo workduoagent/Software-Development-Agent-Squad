@@ -17,7 +17,8 @@
 | 总架构师（人类） | 由用户担任 | 技术选型拍板、契约与破坏性变更决策、安全参数与豁免审批 |
 | 系统架构师 (Architect) | `agents/architect/` | Tech Spec、DDL 骨架、OpenAPI 契约产出与机器校验凭证 |
 | Java 后端工程师 | `agents/developers/backend-java/` | JDK 21 + Spring Boot 3，PostgreSQL 16 / MySQL 8 双方言 |
-| Python 后端工程师 | `agents/developers/backend-python/` | FastAPI / Flask、SQLAlchemy、pytest（占位稿，无技能不派生产任务） |
+| Python 后端工程师 | `agents/developers/backend-python/` | Python 3.12 + FastAPI，SQLAlchemy 2.0 + Alembic，pytest（初版基线） |
+| 脚本工程师 | `agents/developers/script-python/` | Python 自动化脚本与一次性工具：可复现、幂等、无机密（散活为主） |
 | Rust 后端工程师 | `agents/developers/backend-rust/` | Actix / Axum、Tokio、cargo test（占位稿，无技能不派生产任务） |
 | React 前端工程师 | `agents/developers/frontend-react/` | React 19 + Vite + antd，契约类型镜像与 Mock 联调 |
 | Tauri 2 桌面工程师 | `agents/developers/desktop-tauri/` | Tauri 2 + React 19 + Rust + 本地 SQLite，`src/` 与 `src-tauri/` 双责任面 |
@@ -44,7 +45,8 @@ Software-Development-Agent-Squad/
 │   │       └── database-ops/       # 数据侧规范与 D0xx 门禁
 │   ├── developers/
 │   │   ├── backend-java/  { prompt.md, skills/springboot-scaffold, skills/database-ops }
-│   │   ├── backend-python/ { prompt.md }  # 占位
+│   │   ├── backend-python/ { prompt.md, skills/python-backend-scaffold, skills/database-ops }
+│   │   ├── script-python/  { prompt.md, skills/python-scripting }
 │   │   ├── backend-rust/  { prompt.md }  # 占位
 │   │   ├── frontend-react/ { prompt.md, skills/react-scaffold }
 │   │   └── desktop-tauri/ { prompt.md, skills/tauri2-scaffold, skills/react-scaffold }
@@ -52,6 +54,7 @@ Software-Development-Agent-Squad/
 │       ├── prompt.md
 │       └── skills/{artifact_inspector,contract_validator}
 ├── 软件团队知识库/              # 10 份规范文档录入底稿，文件名即知识库文档名，可整目录上传
+├── QoderWaker/                  # QoderWake 数字员工部署装配包（角色三件套/知识库/WakerFlow 底稿/实例与环境档案）
 ├── skills/                       # 生成视图，由 scripts/sync_skills.py 从各角色技能扁平化
 └── scripts/
     ├── sync_skills.py            # 扁平化生成 + 同名副本一致性校验
@@ -107,9 +110,9 @@ python scripts/install_agents.py --dry-run   # 先看落盘计划
 python scripts/install_agents.py             # 写入 ~/.qoder-cn/agents/<name>.md
 ```
 
-脚本只复制、不改写；真源是 `agents/**/prompt.md`，frontmatter 写在 `prompt.md` 里。判定规则：**带 YAML frontmatter 的 `prompt.md` 才安装**，其余文档跳过，`backend-python` / `backend-rust` 占位稿自动落在 SKIP。覆盖同名 Agent 前旧文件备份到 `%TEMP%\agent-install-backup\<时间戳>.<name>.md`。
+脚本只复制、不改写；真源是 `agents/**/prompt.md`，frontmatter 写在 `prompt.md` 里。判定规则：**带 YAML frontmatter 的 `prompt.md` 才安装**，其余文档跳过，`backend-rust` 占位稿自动落在 SKIP。覆盖同名 Agent 前旧文件备份到 `%TEMP%\agent-install-backup\<时间戳>.<name>.md`。
 
-当前落地 6 个：项目经理、系统架构师、Java 后端工程师、React 前端工程师、Tauri2 桌面工程师、质检工程师。
+当前落地 8 个：项目经理、系统架构师、Java 后端工程师、Python 后端工程师、脚本工程师、React 前端工程师、Tauri2 桌面工程师、质检工程师。
 
 运行时事实（实测）：
 
